@@ -1,0 +1,19 @@
+const mongoose = require('mongoose');
+require('express-async-errors');
+require('dotenv').config();
+
+const app = require('../index');
+const dbConnection = require('../config');
+
+const port = process.env.PORT || 3000;
+const env = process.env.NODE_ENV;
+
+// Connect to db
+mongoose.connect(dbConnection[env], {
+  useNewUrlParser: true,
+  useFindAndModify: false,
+  useCreateIndex: true,
+  useUnifiedTopology: true
+});
+
+app.listen(port, () => `Server is running on port ${port}`);
