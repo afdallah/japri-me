@@ -1,3 +1,5 @@
+const bcrypt = require("bcryptjs");
+const jwt = require('jsonwebtoken');
 const User = require("../models/users");
 
 exports.getAll = async (req, res) => {
@@ -10,7 +12,10 @@ exports.getAll = async (req, res) => {
 };
 
 exports.create = async (req, res) => {
-  const user = await User.create(req.body);
+  const salt = await bcrypt.genSalt(10);
+  const hash = await bcrypt.hash(req.body.password, salt);
+
+  const user = await User.create({ ...req.body, password: hash });
 
   res.status(201).json({
     status: true,
@@ -40,3 +45,14 @@ exports.delete = async (req, res) => {
     data: user
   });
 };
+
+// Authentication
+exports.login = async(req, res) => {
+  const user = await User.findOne(req.email);
+  const token = jwt.sign({ _id: user.id }, process.env.SECRET_KEY);
+
+  res.status(200).json({
+    status: true,
+    data: token
+  })
+ }
